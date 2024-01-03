@@ -1,54 +1,35 @@
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import launcher.version.libraries.openLauncher
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
+import cafe.adriel.voyager.navigator.Navigator
+import org.kodein.di.DI
+import org.kodein.di.bindSingleton
+import org.kodein.di.compose.withDI
+import org.kodein.di.instance
+import screens.HomeScreen
+import screens.UserConfigScreen
+import screens.model.HomeScreenModel
+import screens.model.LauncherConfigHolder
+import screens.model.UserConfigScreenModel
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        val greeting = remember { Greeting().greet() }
-
-        var process by remember { mutableStateOf<Process?>(null) }
-
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource("compose-multiplatform.xml"), null)
-                    Text("Compose: $greeting")
-                }
-            }
-
-            Button(
-                onClick = {
-                    GlobalScope.launch { openLauncher().let { process = it } }
-                }
-            ) {
-                Text("ABRE O LAUNCHER OK")
-            }
-
-            if (process != null) {
-                Text("ProcessId: ${process?.pid()}")
-            }
+        withDI(di) {
+            Navigator(
+                listOf(UserConfigScreen(), HomeScreen()),
+            )
         }
     }
 }
+
+private val applicationModule =
+    DI.Module("application") {
+        bindSingleton<LauncherConfigHolder> { LauncherConfigHolder() }
+        bindSingleton<UserConfigScreenModel> { UserConfigScreenModel(instance()) }
+        bindSingleton<HomeScreenModel> { HomeScreenModel(instance()) }
+    }
+
+private val di =
+    DI {
+        import(applicationModule)
+    }

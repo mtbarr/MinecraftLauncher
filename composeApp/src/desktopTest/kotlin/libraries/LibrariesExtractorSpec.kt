@@ -13,14 +13,14 @@ import launcher.version.json.MojangVersionLibraryDownloads
 import launcher.version.json.MojangVersionLibraryRule
 import launcher.version.json.MojangVersionLibraryRuleOS
 import launcher.version.libraries.Arch
-import launcher.version.libraries.VersionDataExtractor
 import launcher.version.libraries.Library
 import launcher.version.libraries.Platform
 import launcher.version.libraries.Platform.LINUX
 import launcher.version.libraries.Platform.OSX
 import launcher.version.libraries.Platform.WINDOWS
+import launcher.version.libraries.VersionDataExtractor
 
-class Testes: FunSpec({
+class Testes : FunSpec({
     @Test
     fun testA() {
         "a" shouldBe 1
@@ -64,6 +64,7 @@ class LibrariesExtractorSpec : DescribeSpec({
                         library.url shouldBe "http://localhost/com/lib/1.8.8/lib-1.8.8.jar"
                     }
             }
+
             fun List<Library>.shouldReturnEmptyResult() = this.shouldBeEmpty()
 
             it("Linux 32") { givenPlatform(LINUX, "32").shouldReturnCommonResult() }
@@ -76,35 +77,42 @@ class LibrariesExtractorSpec : DescribeSpec({
     }
 }) {
     private companion object {
-        fun versionWithLibraryWithoutRules(): List<MojangVersionLibrary> = listOf(
-            MojangVersionLibrary(
-                name = "name",
-                downloads = MojangVersionLibraryDownloads(
-                    artifact = MojangVersionLibraryArtifact(
-                        sha1 = "0a4b8a9a4a654b84a",
-                        size = 15966,
-                        url = "http://localhost/com/lib/1.8.8/lib-1.8.8.jar"
-                    )
-                )
-            )
-        )
-
-        fun versionWithLibraryWithDisallowOSX(): List<MojangVersionLibrary> = listOf(
-            MojangVersionLibrary(
-                name = "name",
-                downloads = MojangVersionLibraryDownloads(
-                    artifact = MojangVersionLibraryArtifact(
-                        sha1 = "0a4b8a9a4a654b84a",
-                        size = 15966,
-                        url = "http://localhost/com/lib/1.8.8/lib-1.8.8.jar"
-                    )
+        fun versionWithLibraryWithoutRules(): List<MojangVersionLibrary> =
+            listOf(
+                MojangVersionLibrary(
+                    name = "name",
+                    downloads =
+                        MojangVersionLibraryDownloads(
+                            artifact =
+                                MojangVersionLibraryArtifact(
+                                    sha1 = "0a4b8a9a4a654b84a",
+                                    size = 15966,
+                                    url = "http://localhost/com/lib/1.8.8/lib-1.8.8.jar",
+                                ),
+                        ),
                 ),
-                rules = listOf(
-                    MojangVersionLibraryRule(action = "allow"),
-                    MojangVersionLibraryRule(action = "disallow", os = MojangVersionLibraryRuleOS("OSX")),
-                )
             )
-        )
+
+        fun versionWithLibraryWithDisallowOSX(): List<MojangVersionLibrary> =
+            listOf(
+                MojangVersionLibrary(
+                    name = "name",
+                    downloads =
+                        MojangVersionLibraryDownloads(
+                            artifact =
+                                MojangVersionLibraryArtifact(
+                                    sha1 = "0a4b8a9a4a654b84a",
+                                    size = 15966,
+                                    url = "http://localhost/com/lib/1.8.8/lib-1.8.8.jar",
+                                ),
+                        ),
+                    rules =
+                        listOf(
+                            MojangVersionLibraryRule(action = "allow"),
+                            MojangVersionLibraryRule(action = "disallow", os = MojangVersionLibraryRuleOS("OSX")),
+                        ),
+                ),
+            )
 
 //        fun versionWithLibraryWithClassifiersDisallowOsx(): List<MojangVersionLibrary> = TODO()
 //        fun versionWithLibraryAllowOSX(): List<MojangVersionLibrary> = TODO()

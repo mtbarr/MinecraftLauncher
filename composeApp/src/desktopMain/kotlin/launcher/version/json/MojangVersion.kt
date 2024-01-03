@@ -11,7 +11,7 @@ data class MojangVersion(
     val javaVersion: MojangVersionJavaVersion,
     val mainClass: String,
     val minecraftArguments: String,
-    val libraries: List<MojangVersionLibrary>
+    val libraries: List<MojangVersionLibrary>,
 )
 
 @Serializable
@@ -20,18 +20,18 @@ data class MojangVersionAssetIndex(
     val sha1: String,
     val size: Int,
     val totalSize: Int,
-    val url: String
+    val url: String,
 )
 
 @Serializable
 data class MojangVersionArtifact(
     val sha1: String,
     val size: Int,
-    val url: String
+    val url: String,
 )
 
 @Serializable
 data class MojangVersionJavaVersion(
     val component: String,
-    val majorVersion: Int
+    val majorVersion: Int,
 )

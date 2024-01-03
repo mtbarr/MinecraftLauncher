@@ -7,6 +7,7 @@ plugins {
 
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotestMultiplatform)
+    alias(libs.plugins.ktlint)
 }
 
 kotlin {
@@ -25,6 +26,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screenModel)
             implementation(libs.voyager.kodein)
@@ -49,7 +51,6 @@ kotlin {
     }
 }
 
-
 compose.desktop {
     application {
         mainClass = "MainKt"
@@ -60,4 +61,8 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    debug.set(true)
 }

@@ -1,4 +1,4 @@
-package launcher.version.json
+package launcher.core.version.minecraft.version
 
 import kotlinx.serialization.Serializable
 

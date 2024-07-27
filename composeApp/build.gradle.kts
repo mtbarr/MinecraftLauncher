@@ -6,8 +6,6 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.kotestMultiplatform)
-    alias(libs.plugins.ktlint)
 }
 
 kotlin {
@@ -15,6 +13,7 @@ kotlin {
 
     sourceSets {
         val desktopMain by getting
+        val desktopTest by getting
 
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -31,22 +30,21 @@ kotlin {
             implementation(libs.voyager.screenModel)
             implementation(libs.voyager.kodein)
             implementation(libs.kodein.di)
+            implementation(projects.core)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.client.okhttp)
         }
 
-        commonTest.dependencies {
-            dependencies {
-                implementation(kotlin("test-junit"))
-                implementation(libs.kotlin.test)
-                implementation(libs.kotest.framework.engine)
-                implementation(libs.kotest.framework.datatest)
-                implementation(libs.kotest.assertions.core)
-                implementation(libs.kotest.runner.junit5)
-                implementation("junit:junit:4.13.2")
-            }
+        desktopTest.dependencies {
+            implementation(kotlin("test-junit"))
+            implementation(libs.kotlin.test)
+            implementation(libs.kotest.framework.engine)
+            implementation(libs.kotest.framework.datatest)
+            implementation(libs.kotest.assertions.core)
+            implementation(libs.kotest.runner.junit5)
+            implementation("junit:junit:4.13.2")
         }
     }
 }
@@ -61,8 +59,4 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
-}
-
-configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    debug.set(true)
 }

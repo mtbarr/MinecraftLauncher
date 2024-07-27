@@ -1,4 +1,4 @@
-package launcher.version.json
+package launcher.core.version.minecraft.version
 
 import kotlinx.serialization.Serializable
 
@@ -8,7 +8,7 @@ data class MojangVersion(
     val assets: String,
     val assetIndex: MojangVersionAssetIndex,
     val downloads: Map<String, MojangVersionArtifact>,
-    val javaVersion: MojangVersionJavaVersion,
+    val javaVersion: MojangVersionJavaVersion? = null,
     val mainClass: String,
     val minecraftArguments: String,
     val libraries: List<MojangVersionLibrary>,

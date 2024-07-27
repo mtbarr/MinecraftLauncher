@@ -14,6 +14,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.kodein.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import launcher.core.file.download.DownloadProgress
 import org.kodein.di.compose.localDI
 import org.kodein.di.instance
 import screens.components.DownloadLoadingBar
@@ -34,6 +36,7 @@ class HomeScreen : Screen {
             isLaunchButtonEnabled = isLaunchButtonEnabled,
             onClickOptions = { navigator.push(UserConfigScreen()) },
             onLaunchButtonClick = { screenModel.startGame() },
+            downloadFlow = screenModel.downloadFlow,
         )
     }
 
@@ -42,6 +45,7 @@ class HomeScreen : Screen {
         isLaunchButtonEnabled: Boolean = true,
         onLaunchButtonClick: () -> Unit = {},
         onClickOptions: () -> Unit = {},
+        downloadFlow: MutableSharedFlow<DownloadProgress> = MutableSharedFlow(),
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -57,7 +61,7 @@ class HomeScreen : Screen {
                 LaunchButton(isLaunchButtonEnabled, onLaunchButtonClick)
             }
             Spacer(modifier = Modifier.height(32.dp))
-            DownloadLoadingBar()
+            DownloadLoadingBar(downloadFlow)
         }
     }
 

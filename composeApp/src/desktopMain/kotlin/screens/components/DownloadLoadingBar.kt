@@ -7,16 +7,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
-import launcher.util.FileDownloader
-import java.math.BigDecimal
+import launcher.core.file.download.DownloadProgress
 import kotlin.time.Duration.Companion.seconds
 
-private val MAX = BigDecimal("1")
+private const val MAX = 1.0
 
 @Composable
-fun DownloadLoadingBar() {
-    val nullableProgress by FileDownloader.downloadProgress.collectAsState(null)
+fun DownloadLoadingBar(downloadFlow: MutableSharedFlow<DownloadProgress>) {
+    val nullableProgress by downloadFlow.collectAsState(null)
     var lastProgressToClean by remember {
         val lastProgress: String? = null
         mutableStateOf(lastProgress to false)
@@ -34,8 +34,6 @@ fun DownloadLoadingBar() {
             }
         }
     }
-
-    println(progress.toString())
 
     val shouldClean =
         with(lastProgressToClean) {

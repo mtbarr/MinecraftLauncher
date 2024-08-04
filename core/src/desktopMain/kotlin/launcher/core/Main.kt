@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import launcher.core.config.VersionConfig
 
 fun main() =
     runBlocking {
@@ -18,8 +17,6 @@ fun main() =
             }
         }
 
-        val versionConfig = loadJsonFile<VersionConfig>(json, "/home/rafael/Projects/MinecraftLauncher/server/versions.json")
-
-        launcher.selectedVersion = versionConfig.versions.first().toVersion(launcher.gameFolders)
+        launcher.downloadVersionsFile()
         launcher.downloadResources()
     }

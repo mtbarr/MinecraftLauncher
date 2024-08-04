@@ -12,6 +12,7 @@ object GameRunner {
         username: String,
         onExit: () -> Unit = {},
     ) {
+        launcher.downloadVersionsFile()
         launcher.downloadResources()
 
         val commands =

@@ -12,6 +12,8 @@ import launcher.core.file.ResourceFileType.NATIVE
 import launcher.core.file.download.DownloadProgress
 import launcher.core.file.download.FileDownloaderAdapter
 import launcher.core.version.Version
+import launcher.core.version.forge.MappedForgeVersion
+import launcher.core.version.forge.version.ForgeVersion
 import launcher.core.version.minecraft.MappedMinecraftVersion
 import launcher.core.version.minecraft.assets.AssetIndexFile
 import launcher.core.version.minecraft.version.MojangVersion
@@ -30,6 +32,7 @@ class Launcher private constructor(
 
     var selectedVersion: Version? = null
     var selectedMinecraftVersion: MappedMinecraftVersion? = null
+    var selectedForgeVersion: MappedForgeVersion? = null
 
     val downloadFlow = MutableSharedFlow<DownloadProgress>()
 
@@ -46,19 +49,9 @@ class Launcher private constructor(
     suspend fun downloadResources() {
         val selectedVersion = requireNotNull(selectedVersion)
 
-        val versionInfoResource = requireNotNull(selectedVersion.versionInfoResource)
-        val versionInfo =
-            downloadIfNotExists(versionInfoResource)
-                .let { versionInfo -> json.decodeFromString<MojangVersion>(versionInfo.decodeToString()) }
+        loadMinecraftVersion(selectedVersion)
+        selectedVersion.forgeVersionInfoResource?.let { loadForgeVersion(selectedVersion, it) }
 
-        val mappedMinecraftVersion =
-            MappedMinecraftVersion.fromMojangVersion(
-                mojangVersion = versionInfo,
-                platformType = platformData.platformType,
-                arch = platformData.arch,
-            ).also { this.selectedMinecraftVersion = it }
-
-        selectedVersion.loadMinecraftVersionResources(mappedMinecraftVersion, gameFolders)
         selectedVersion.resources.forEach { resource -> downloadIfNotExists(resource) }
 
         selectedVersion.resourcesWithType(NATIVE).forEach { nativeResource ->
@@ -73,6 +66,39 @@ class Launcher private constructor(
                 downloadIfNotExists(resourceFile)
             }
         }
+    }
+
+    private suspend fun loadMinecraftVersion(selectedVersion: Version) {
+        val versionInfoResource = requireNotNull(selectedVersion.versionInfoResource)
+        val versionInfo =
+            downloadIfNotExists(versionInfoResource)
+                .let { versionInfo -> json.decodeFromString<MojangVersion>(versionInfo.decodeToString()) }
+
+        val mappedMinecraftVersion =
+            MappedMinecraftVersion.fromMojangVersion(
+                mojangVersion = versionInfo,
+                platformType = platformData.platformType,
+                arch = platformData.arch,
+            ).also { this.selectedMinecraftVersion = it }
+
+        selectedVersion.loadMinecraftVersionResources(mappedMinecraftVersion, gameFolders)
+    }
+
+    private suspend fun loadForgeVersion(
+        selectedVersion: Version,
+        forgeVersionInfoResource: ResourceFile,
+    ) {
+        val forgeVersionInfo =
+            downloadIfNotExists(forgeVersionInfoResource)
+                .let { forgeVersionInfo ->
+                    json.decodeFromString<ForgeVersion>(forgeVersionInfo.decodeToString())
+                }
+
+        val mappedForgeVersion =
+            MappedForgeVersion.fromForgeVersion(forgeVersionInfo)
+                .also { this.selectedForgeVersion = it }
+
+        selectedVersion.loadForgeVersionResources(mappedForgeVersion, gameFolders)
     }
 
     private suspend fun downloadIfNotExists(resourceFile: ResourceFile): ByteArray {

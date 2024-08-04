@@ -6,10 +6,12 @@ import launcher.core.file.GameFolders
 import launcher.core.file.ResourceFile
 import launcher.core.file.ResourceFileType
 import launcher.core.file.ResourceFileType.ASSET_INDEX
+import launcher.core.file.ResourceFileType.FORGE_VERSION_INFO
 import launcher.core.file.ResourceFileType.LIBRARY
 import launcher.core.file.ResourceFileType.NATIVE
 import launcher.core.file.ResourceFileType.VERSION
 import launcher.core.file.ResourceFileType.VERSION_INFO
+import launcher.core.version.forge.MappedForgeVersion
 import launcher.core.version.minecraft.MappedMinecraftVersion
 
 data class Version(
@@ -19,6 +21,9 @@ data class Version(
 ) {
     val versionInfoResource: ResourceFile?
         get() = resourceWithType(VERSION_INFO)
+
+    val forgeVersionInfoResource: ResourceFile?
+        get() = resourceWithType(FORGE_VERSION_INFO)
 
     val assetIndexResource: ResourceFile?
         get() = resourceWithType(ASSET_INDEX)
@@ -80,5 +85,34 @@ data class Version(
         resources.addAll(librariesResources)
         resources.addAll(nativeLibrariesResources)
         resources.add(assetIndexResource)
+    }
+
+    fun loadForgeVersionResources(
+        forgeVersion: MappedForgeVersion,
+        gameFolders: GameFolders,
+    ) {
+        val versionClientResource =
+            ResourceFile(
+                type = VERSION,
+                remoteUrl = forgeVersion.versionLibrary.url,
+                location = VERSION.getBaseFolder(gameFolders) withSeparator id withSeparator "forge-${forgeVersion.versionId}.jar",
+            )
+
+        val libraryBaseFolder = LIBRARY.getBaseFolder(gameFolders)
+        val librariesResources =
+            forgeVersion.libraries.map { library ->
+                ResourceFile(
+                    type = LIBRARY,
+                    remoteUrl = library.url,
+                    location = libraryBaseFolder withSeparator library.url.removePrefix(library.prefix),
+                )
+            }
+
+        resources.add(versionClientResource)
+        librariesResources.forEach { library ->
+            if (resources.none { it.location == library.location }) {
+                resources.add(library)
+            }
+        }
     }
 }

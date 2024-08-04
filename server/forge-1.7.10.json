@@ -12,7 +12,7 @@
   "libraries": [
     {
       "name": "net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10",
-      "url": "http://files.minecraftforge.net/maven/"
+      "url": "https://maven.minecraftforge.net/"
     },
     {
       "name": "net.minecraft:launchwrapper:1.12",

@@ -210,17 +210,6 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/google/guava/guava/15.0/guava-15.0.jar",
-          "sha1": "ed727a8d9f247e2050281cb083f1c77b09dcb5cd",
-          "size": 2172168,
-          "url": "https://libraries.minecraft.net/com/google/guava/guava/15.0/guava-15.0.jar"
-        }
-      },
-      "name": "com.google.guava:guava:15.0"
-    },
-    {
-      "downloads": {
-        "artifact": {
           "path": "org/apache/commons/commons-lang3/3.1/commons-lang3-3.1.jar",
           "sha1": "905075e6c80f206bbe6cf1e809d2caa69f420c76",
           "size": 315805,

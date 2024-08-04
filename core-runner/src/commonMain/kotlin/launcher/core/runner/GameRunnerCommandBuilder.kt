@@ -2,11 +2,11 @@ package launcher.core.runner
 
 import launcher.core.file.GameFolders
 import launcher.core.pathSeparator
-import launcher.core.version.minecraft.MappedMinecraftVersion
+import launcher.core.version.VersionRunnerData
 
 object GameRunnerCommandBuilder {
     fun buildCommand(
-        versionData: MappedMinecraftVersion,
+        versionData: VersionRunnerData,
         gameFolders: GameFolders,
         librariesPath: List<String>,
         javaPath: String,
@@ -29,7 +29,7 @@ object GameRunnerCommandBuilder {
 
     private fun buildMinecraftArguments(
         gameFolders: GameFolders,
-        versionData: MappedMinecraftVersion,
+        versionData: VersionRunnerData,
         username: String,
     ): List<String> {
         val replacedArguments =

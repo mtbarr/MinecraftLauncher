@@ -8,6 +8,7 @@ data class ResourceFile(
 
 enum class ResourceFileType {
     VERSION_INFO,
+    FORGE_VERSION_INFO,
     VERSION,
     LIBRARY,
     NATIVE,
@@ -18,7 +19,7 @@ enum class ResourceFileType {
 
     fun getBaseFolder(gameFolders: GameFolders): String {
         return when (this) {
-            VERSION_INFO, VERSION -> gameFolders.versionsDir
+            VERSION_INFO, FORGE_VERSION_INFO, VERSION -> gameFolders.versionsDir
             LIBRARY -> gameFolders.librariesDir
             SERVER_DATA -> gameFolders.cacheDir
             NATIVE -> gameFolders.nativesCacheDir

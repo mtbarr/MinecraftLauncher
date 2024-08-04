@@ -27,7 +27,7 @@ class MappedMinecraftVersion(
                     val hasRules = library.rules.isNotEmpty()
                     val platformRules =
                         library.rules
-                            .firstOrNull { rule -> rule.os?.name == platformType.nativeId }
+                            .firstOrNull { rule -> rule.os?.name.equals(platformType.nativeId, true) }
                             ?: library.rules.firstOrNull { rule -> rule.os == null }
 
                     val isPlatformAllowed = platformRules?.action == ALLOW

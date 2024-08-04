@@ -6,7 +6,11 @@
       "resources": [
         {
           "type": "VERSION",
-          "url": "https://piston-meta.mojang.com/v1/packages/ed5d8789ed29872ea2ef1c348302b0c55e3f3468/1.7.10.json"
+          "url": "http://localhost:8081/1.7.10.json"
+        },
+        {
+          "type": "FORGE_VERSION",
+          "url": "http://localhost:8081/forge-1.7.10.json"
         }
       ]
     }

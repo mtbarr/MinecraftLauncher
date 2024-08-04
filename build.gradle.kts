@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
-    alias(libs.plugins.kotestMultiplatform) apply false
+    alias(libs.plugins.kotestMultiplatform) apply true
     alias(libs.plugins.ktlint) apply false
 }
 

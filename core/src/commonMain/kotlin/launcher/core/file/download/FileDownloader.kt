@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.get
 import io.ktor.http.Url
+import io.ktor.http.isSuccess
 
 interface FileDownloader {
     suspend fun download(
@@ -18,16 +19,23 @@ class FileDownloaderAdapter(private val httpClient: HttpClient) : FileDownloader
         url: String,
         onDownloadProgress: suspend (DownloadProgress) -> Unit,
     ): ByteArray {
-        return httpClient.get(Url(url)) {
-            onDownload { bytesSentTotal, contentLength ->
-                val percentage = bytesSentTotal / contentLength * 100.0
-                val downloadProgress =
-                    DownloadProgress(
-                        fileName = url,
-                        progress = percentage,
-                    )
-                onDownloadProgress(downloadProgress)
+        val response =
+            httpClient.get(Url(url)) {
+                onDownload { bytesSentTotal, contentLength ->
+                    val percentage = bytesSentTotal / contentLength * 100.0
+                    val downloadProgress =
+                        DownloadProgress(
+                            fileName = url,
+                            progress = percentage,
+                        )
+                    onDownloadProgress(downloadProgress)
+                }
             }
-        }.body()
+
+        return if (response.status.isSuccess()) {
+            response.body()
+        } else {
+            error("Failed to download file from url [$url] with status [${response.status}]")
+        }
     }
 }

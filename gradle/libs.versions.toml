@@ -1,6 +1,5 @@
 [versions]
 compose = "1.5.4"
-compose-compiler = "1.5.6"
 compose-plugin = "1.5.11"
 junit = "4.13.2"
 kotlin = "1.9.21"
@@ -13,6 +12,7 @@ voyager = "1.0.0"
 kodein = "7.19.0"
 ktlint = "12.0.3"
 kotlinx-io = "0.5.1"
+okio = "3.9.0"
 
 
 [libraries]
@@ -39,6 +39,7 @@ voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.
 voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
 voyager-kodein = { module = "cafe.adriel.voyager:voyager-kodein", version.ref = "voyager" }
 kodein-di = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

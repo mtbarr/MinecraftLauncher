@@ -1,7 +1,7 @@
 package launcher.core.version.minecraft
 
 import launcher.core.Arch
-import launcher.core.Platform
+import launcher.core.PlatformType
 import launcher.core.version.minecraft.version.MojangVersion
 import launcher.core.version.minecraft.version.MojangVersionLibrary
 
@@ -19,7 +19,7 @@ class MappedMinecraftVersion(
 
         fun fromMojangVersion(
             mojangVersion: MojangVersion,
-            platform: Platform,
+            platformType: PlatformType,
             arch: String,
         ): MappedMinecraftVersion {
             val filteredLibrariesByPlatform =
@@ -27,7 +27,7 @@ class MappedMinecraftVersion(
                     val hasRules = library.rules.isNotEmpty()
                     val platformRules =
                         library.rules
-                            .firstOrNull { rule -> rule.os?.name == platform.nativeId }
+                            .firstOrNull { rule -> rule.os?.name == platformType.nativeId }
                             ?: library.rules.firstOrNull { rule -> rule.os == null }
 
                     val isPlatformAllowed = platformRules?.action == ALLOW
@@ -36,7 +36,7 @@ class MappedMinecraftVersion(
                 }
             val libraries =
                 filteredLibrariesByPlatform.map {
-                    MappedMinecraftVersionLibrary.selectPlatformLibrary(it, platform, arch)
+                    MappedMinecraftVersionLibrary.selectPlatformLibrary(it, platformType, arch)
                 }
 
             return MappedMinecraftVersion(
@@ -68,10 +68,10 @@ data class MappedMinecraftVersionLibrary(
     companion object {
         fun selectPlatformLibrary(
             mojangLibrary: MojangVersionLibrary,
-            platform: Platform,
+            platformType: PlatformType,
             arch: Arch,
         ): MappedMinecraftVersionLibrary {
-            val nativeClassifierName = mojangLibrary.natives[platform.nativeId]?.replace("\${arch}", arch)
+            val nativeClassifierName = mojangLibrary.natives[platformType.nativeId]?.replace("\${arch}", arch)
 
             return if (nativeClassifierName != null) {
                 val classifier =

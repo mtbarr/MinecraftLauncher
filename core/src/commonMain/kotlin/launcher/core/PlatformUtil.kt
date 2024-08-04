@@ -4,14 +4,14 @@ import kotlinx.serialization.json.Json
 
 typealias Arch = String
 
-enum class Platform(val nativeId: String) {
+enum class PlatformType(val nativeId: String) {
     LINUX("linux"),
     OSX("osx"),
     WINDOWS("windows"),
 }
 
 data class PlatformData(
-    val platform: Platform,
+    val platformType: PlatformType,
     val arch: Arch,
     val appDataDir: String,
 )

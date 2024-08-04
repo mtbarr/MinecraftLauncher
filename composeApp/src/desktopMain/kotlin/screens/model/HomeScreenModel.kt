@@ -6,15 +6,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import launcher.core.Launcher
 import launcher.core.file.download.DownloadProgress
-import launcher.runner.GameRunner
+import launcher.core.runner.GameRunner
 
 data class HomeModel(
-    val process: Process? = null,
+    val isRunning: Boolean = false,
     val isLoading: Boolean = false,
-) {
-    val isRunning: Boolean
-        get() = process != null
-}
+)
 
 class HomeScreenModel(
     private val launcherConfigHolder: LauncherConfigHolder,
@@ -32,12 +29,18 @@ class HomeScreenModel(
             launcherConfigHolder.launcherConfig.value?.let { config ->
                 mutableState.emit(state.value.copy(isLoading = true))
 
-                val process = GameRunner.launchGame(config = config, launcher = launcher, onExit = ::onProcessTerminate)
-                mutableState.emit(state.value.copy(isLoading = false, process = process))
+                GameRunner.launchGame(
+                    launcher = launcher,
+                    javaPath = config.javaPath,
+                    javaArguments = config.javaArguments,
+                    username = config.username,
+                    onExit = ::onProcessTerminate,
+                )
+                mutableState.emit(state.value.copy(isLoading = false, isRunning = true))
             }
         }
 
     private fun onProcessTerminate() {
-        mutableState.tryEmit(state.value.copy(process = null))
+        mutableState.tryEmit(state.value.copy(isRunning = false))
     }
 }

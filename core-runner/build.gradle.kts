@@ -39,15 +39,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.io)
             implementation(libs.ktor.client.core)
-        }
-
-        desktopMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
-        }
-
-        nativeMain.dependencies {
-            implementation(libs.kotlinx.io)
-            implementation(libs.okio)
+            implementation(projects.core)
         }
     }
 }

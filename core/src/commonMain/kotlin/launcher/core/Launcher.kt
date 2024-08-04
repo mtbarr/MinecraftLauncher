@@ -35,12 +35,12 @@ class Launcher private constructor(
         val versionInfoResource = requireNotNull(selectedVersion.versionInfoResource)
         val versionInfo =
             versionInfoResource.downloadIfNotExists(fileDownloader)
-                .let { versionInfo -> json.decodeFromString<MojangVersion>(String(versionInfo)) }
+                .let { versionInfo -> json.decodeFromString<MojangVersion>(versionInfo.decodeToString()) }
 
         val mappedMinecraftVersion =
             MappedMinecraftVersion.fromMojangVersion(
                 mojangVersion = versionInfo,
-                platform = platformData.platform,
+                platformType = platformData.platformType,
                 arch = platformData.arch,
             ).also { this.selectedMinecraftVersion = it }
 

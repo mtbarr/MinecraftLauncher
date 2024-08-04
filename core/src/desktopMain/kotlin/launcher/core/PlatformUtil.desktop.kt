@@ -9,11 +9,11 @@ import java.util.zip.ZipFile
 
 actual fun getPlatformData(): PlatformData {
     val osName = System.getProperty("os.name", "generic").lowercase()
-    val platform =
+    val platformType =
         when {
-            osName.contains("mac") || osName.contains("darwin") -> Platform.OSX
-            osName.contains("win") -> Platform.WINDOWS
-            else -> Platform.LINUX
+            osName.contains("mac") || osName.contains("darwin") -> PlatformType.OSX
+            osName.contains("win") -> PlatformType.WINDOWS
+            else -> PlatformType.LINUX
         }
     val arch =
         System.getProperty("os.arch", "x86").let { arch ->
@@ -24,7 +24,7 @@ actual fun getPlatformData(): PlatformData {
             }
         }
 
-    return PlatformData(platform = platform, arch = arch, appDataDir = getAppDataDir())
+    return PlatformData(platformType = platformType, arch = arch, appDataDir = getAppDataDir())
 }
 
 actual fun fileExists(path: String): Boolean {

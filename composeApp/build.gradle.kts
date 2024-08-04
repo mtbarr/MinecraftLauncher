@@ -31,6 +31,7 @@ kotlin {
             implementation(libs.voyager.kodein)
             implementation(libs.kodein.di)
             implementation(projects.core)
+            implementation(projects.coreRunner)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

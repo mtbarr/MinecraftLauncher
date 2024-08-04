@@ -11,13 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.kodein.rememberScreenModel
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import launcher.core.file.download.DownloadProgress
-import org.kodein.di.compose.localDI
-import org.kodein.di.instance
+import org.koin.compose.koinInject
 import screens.components.DownloadLoadingBar
 import screens.model.HomeScreenModel
 import screens.model.LauncherConfigHolder
@@ -25,12 +24,12 @@ import screens.model.LauncherConfigHolder
 class HomeScreen : Screen {
     @Composable
     override fun Content() {
-        val screenModel = rememberScreenModel<HomeScreenModel>()
+        val screenModel = getScreenModel<HomeScreenModel>()
         val state by screenModel.state.collectAsState()
 
         val navigator = LocalNavigator.currentOrThrow
 
-        val launcherConfigHolder by localDI().instance<LauncherConfigHolder>()
+        val launcherConfigHolder = koinInject<LauncherConfigHolder>()
         val isLaunchButtonEnabled = !state.isRunning && !state.isLoading && launcherConfigHolder.launcherConfig.value != null
         ContentState(
             isLaunchButtonEnabled = isLaunchButtonEnabled,

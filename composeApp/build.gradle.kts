@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -28,14 +29,15 @@ kotlin {
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screenModel)
-            implementation(libs.voyager.kodein)
-            implementation(libs.kodein.di)
+            implementation(libs.voyager.koin)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
             implementation(projects.core)
             implementation(projects.coreRunner)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.cio)
         }
 
         desktopTest.dependencies {
@@ -54,10 +56,19 @@ compose.desktop {
     application {
         mainClass = "MainKt"
 
+        buildTypes.release.proguard {
+            obfuscate.set(true)
+            configurationFiles.from(project.file("compose-desktop.pro"))
+        }
+
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Deb, TargetFormat.AppImage, TargetFormat.Exe, TargetFormat.Msi)
+            targetFormats(TargetFormat.Dmg, TargetFormat.AppImage, TargetFormat.Exe, TargetFormat.Msi)
             packageName = "me.rafaelrain.minecraftlauncher"
             packageVersion = "1.0.0"
+
+            linux {
+                iconFile.set(project.file("icon.png"))
+            }
         }
     }
 }

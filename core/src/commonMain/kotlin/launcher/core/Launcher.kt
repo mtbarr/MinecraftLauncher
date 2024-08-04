@@ -1,6 +1,7 @@
 package launcher.core
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.Json
 import launcher.core.config.VersionConfig
@@ -25,7 +26,7 @@ class Launcher private constructor(
     val json: Json,
     val versionsFileUrl: String,
 ) {
-    private val fileDownloader = FileDownloaderAdapter(HttpClient())
+    private val fileDownloader = FileDownloaderAdapter(HttpClient(CIO))
 
     var selectedVersion: Version? = null
     var selectedMinecraftVersion: MappedMinecraftVersion? = null

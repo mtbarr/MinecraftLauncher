@@ -3,10 +3,8 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.serialization.json.Json
 import launcher.core.Launcher
-import org.kodein.di.DI
-import org.kodein.di.bindSingleton
-import org.kodein.di.compose.withDI
-import org.kodein.di.instance
+import org.koin.compose.KoinApplication
+import org.koin.dsl.module
 import screens.HomeScreen
 import screens.UserConfigScreen
 import screens.model.HomeScreenModel
@@ -16,7 +14,7 @@ import screens.model.UserConfigScreenModel
 @Composable
 fun App() {
     MaterialTheme {
-        withDI(di) {
+        KoinApplication({ modules(applicationModule) }) {
             Navigator(
                 listOf(UserConfigScreen(), HomeScreen()),
             )
@@ -24,20 +22,11 @@ fun App() {
     }
 }
 
-private fun createLauncher(): Launcher {
-    val json = Json { ignoreUnknownKeys = true }
-    return Launcher.start(json, launcherFolderName = ".launcher3")
-}
-
 private val applicationModule =
-    DI.Module("application") {
-        bindSingleton<LauncherConfigHolder> { LauncherConfigHolder() }
-        bindSingleton<Launcher> { createLauncher() }
-        bindSingleton<UserConfigScreenModel> { UserConfigScreenModel(instance()) }
-        bindSingleton<HomeScreenModel> { HomeScreenModel(instance(), instance()) }
-    }
-
-private val di =
-    DI {
-        import(applicationModule)
+    module {
+        single<Json> { Json { ignoreUnknownKeys = true } }
+        single<LauncherConfigHolder> { LauncherConfigHolder() }
+        single<Launcher> { Launcher.start(get()) }
+        single<UserConfigScreenModel> { UserConfigScreenModel(get()) }
+        single<HomeScreenModel> { HomeScreenModel(get(), get()) }
     }

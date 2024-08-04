@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.kodein.rememberScreenModel
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import screens.model.UserConfigScreenModel
@@ -23,7 +23,7 @@ typealias OnTextChange = (String) -> Unit
 class UserConfigScreen : Screen {
     @Composable
     override fun Content() {
-        val screenModel = rememberScreenModel<UserConfigScreenModel>()
+        val screenModel = getScreenModel<UserConfigScreenModel>()
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 

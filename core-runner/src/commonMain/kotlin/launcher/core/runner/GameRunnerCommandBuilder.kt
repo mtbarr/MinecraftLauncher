@@ -32,7 +32,7 @@ object GameRunnerCommandBuilder {
         versionData: VersionRunnerData,
         username: String,
     ): List<String> {
-        val replacedArguments =
+        var replacedArguments =
             versionData.minecraftArguments
                 .replace("\${auth_player_name}", username)
                 .replace("\${version_name}", versionData.versionId)
@@ -43,6 +43,19 @@ object GameRunnerCommandBuilder {
                 .replace("\${auth_access_token}", "token")
                 .replace("\${user_type}", "msa")
                 .replace("\${user_properties}", "{}")
+
+        val serverAddressArguments =
+            versionData.serverAddress?.let { address ->
+                val (server, port) =
+                    if (address.contains(":")) {
+                        val splitAddress = address.split(":")
+                        splitAddress.first() to splitAddress.last()
+                    } else {
+                        address to "25565"
+                    }
+                "--server $server --port $port"
+            }
+        serverAddressArguments?.let { replacedArguments += " $it" }
 
         return replacedArguments.split(" ")
     }

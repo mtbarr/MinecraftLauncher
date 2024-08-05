@@ -17,6 +17,7 @@ import launcher.core.version.minecraft.MappedMinecraftVersion
 data class Version(
     val id: String,
     val version: Int,
+    val serverAddress: String? = null,
     val resources: MutableList<ResourceFile>,
 ) {
     val versionInfoResource: ResourceFile?

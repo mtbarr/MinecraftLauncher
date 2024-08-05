@@ -20,6 +20,7 @@ object GameRunner {
             VersionRunnerData.create(
                 minecraftVersion = launcher.selectedMinecraftVersion!!,
                 forgeVersion = launcher.selectedForgeVersion,
+                serverAddress = launcher.selectedVersion!!.serverAddress,
             )
 
         val commands =

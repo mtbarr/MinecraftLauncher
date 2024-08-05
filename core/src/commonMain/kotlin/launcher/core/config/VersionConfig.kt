@@ -19,12 +19,14 @@ data class VersionConfig(
 data class VersionConfigEntry(
     val id: String,
     val version: Int,
+    val serverAddress: String? = null,
     val resources: List<VersionConfigResource>,
 ) {
     fun toVersion(gameFolders: GameFolders): Version {
         return Version(
             id = id,
             version = version,
+            serverAddress = serverAddress,
             resources =
                 resources.map { resource ->
                     val resourceFileType = resource.type.toResourceFileType()

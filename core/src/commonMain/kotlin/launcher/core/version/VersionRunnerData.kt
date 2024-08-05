@@ -8,11 +8,13 @@ data class VersionRunnerData(
     val minecraftArguments: String,
     val versionId: String,
     val assetIndexId: String,
+    val serverAddress: String? = null,
 ) {
     companion object {
         fun create(
             minecraftVersion: MappedMinecraftVersion,
             forgeVersion: MappedForgeVersion?,
+            serverAddress: String?,
         ): VersionRunnerData {
             return if (forgeVersion != null) {
                 VersionRunnerData(
@@ -20,6 +22,7 @@ data class VersionRunnerData(
                     minecraftArguments = forgeVersion.minecraftArguments,
                     versionId = forgeVersion.versionId,
                     assetIndexId = forgeVersion.assetIndexId,
+                    serverAddress = serverAddress,
                 )
             } else {
                 VersionRunnerData(
@@ -27,6 +30,7 @@ data class VersionRunnerData(
                     minecraftArguments = minecraftVersion.minecraftArguments,
                     versionId = minecraftVersion.versionId,
                     assetIndexId = minecraftVersion.assetIndexId,
+                    serverAddress = serverAddress,
                 )
             }
         }

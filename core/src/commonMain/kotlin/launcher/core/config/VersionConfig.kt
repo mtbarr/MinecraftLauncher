@@ -50,7 +50,7 @@ data class VersionConfigResource(
         baseFolder: String,
     ): String {
         return when (type) {
-            SERVER -> baseFolder
+            SERVER -> baseFolder withSeparator "server-data.zip"
             VERSION -> baseFolder withSeparator id withSeparator "$id.json"
             FORGE_VERSION -> baseFolder withSeparator id withSeparator "forge-$id.json"
         }

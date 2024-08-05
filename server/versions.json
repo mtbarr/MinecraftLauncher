@@ -11,6 +11,10 @@
         {
           "type": "FORGE_VERSION",
           "url": "http://localhost:8081/forge-1.7.10.json"
+        },
+        {
+          "type": "SERVER",
+          "url": "http://localhost:8081/server-pack.zip"
         }
       ]
     }

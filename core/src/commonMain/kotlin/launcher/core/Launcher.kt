@@ -9,6 +9,7 @@ import launcher.core.extensions.withSeparator
 import launcher.core.file.GameFolders
 import launcher.core.file.ResourceFile
 import launcher.core.file.ResourceFileType.NATIVE
+import launcher.core.file.ResourceFileType.SERVER_DATA
 import launcher.core.file.download.DownloadProgress
 import launcher.core.file.download.FileDownloaderAdapter
 import launcher.core.version.Version
@@ -66,6 +67,8 @@ class Launcher private constructor(
                 downloadIfNotExists(resourceFile)
             }
         }
+
+        selectedVersion.resourceWithType(SERVER_DATA)?.let { extractServerData(it) }
     }
 
     private suspend fun loadMinecraftVersion(selectedVersion: Version) {
@@ -99,6 +102,14 @@ class Launcher private constructor(
                 .also { this.selectedForgeVersion = it }
 
         selectedVersion.loadForgeVersionResources(mappedForgeVersion, gameFolders)
+    }
+
+    private suspend fun extractServerData(resourceFile: ResourceFile) {
+        val alreadyDownloadedServerData = fileExists(resourceFile.location)
+        if (!alreadyDownloadedServerData) {
+            downloadIfNotExists(resourceFile)
+            extractZipFile(zipFilePath = resourceFile.location, outputPath = gameFolders.gameDir)
+        }
     }
 
     private suspend fun downloadIfNotExists(resourceFile: ResourceFile): ByteArray {

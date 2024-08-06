@@ -62,7 +62,7 @@ compose.desktop {
         }
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.AppImage, TargetFormat.Exe, TargetFormat.Msi)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Deb, TargetFormat.AppImage, TargetFormat.Exe, TargetFormat.Msi)
             packageName = "me.rafaelrain.minecraftlauncher"
             packageVersion = "1.0.0"
 

@@ -135,12 +135,12 @@ class Launcher private constructor(
     companion object {
         fun start(
             json: Json,
-            launcherFolderName: String = getCurrentPath() withSeparator "MinecraftLauncher_Data",
+            launcherFolderName: String = "MinecraftLauncher_Data",
             versionsFileUrl: String = DEFAULT_VERSIONS_FILE_URL,
         ): Launcher {
             val platformData = getPlatformData()
 
-            val gameFolders = GameFolders(baseDir = launcherFolderName).also { it.createDefaultFolders() }
+            val gameFolders = GameFolders(baseDir = platformData.appDataDir withSeparator launcherFolderName).also { it.createDefaultFolders() }
 
             return Launcher(
                 platformData = platformData,

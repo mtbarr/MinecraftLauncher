@@ -34,7 +34,7 @@ private val applicationModule =
     }
 
 private fun defaultUserConfig(): UserConfig {
-    val javaVersions = getJavaInstallationDirectories()
+    val javaVersions = getJavaExecutables()
     javaVersions.forEach(::println)
 
     return UserConfig(
@@ -43,9 +43,9 @@ private fun defaultUserConfig(): UserConfig {
     )
 }
 
-fun getJavaInstallationDirectories(): List<String> {
+fun getJavaExecutables(): List<String> {
     val osName = System.getProperty("os.name").lowercase()
-    val javaDirs = mutableListOf<String>()
+    val javaExecutables = mutableListOf<String>()
 
     when {
         osName.contains("win") -> {
@@ -57,7 +57,11 @@ fun getJavaInstallationDirectories(): List<String> {
             windowsPaths.forEach { path ->
                 val dir = File(path)
                 if (dir.exists() && dir.isDirectory) {
-                    javaDirs.addAll(dir.listFiles()?.filter { it.isDirectory }?.map { it.absolutePath } ?: emptyList())
+                    javaExecutables.addAll(
+                        dir.listFiles()?.filter { it.isDirectory }
+                            ?.mapNotNull { File(it, "bin\\javaw.exe").takeIf { exe -> exe.exists() }?.absolutePath }
+                            ?: emptyList(),
+                    )
                 }
             }
         }
@@ -70,7 +74,11 @@ fun getJavaInstallationDirectories(): List<String> {
             macPaths.forEach { path ->
                 val dir = File(path)
                 if (dir.exists() && dir.isDirectory) {
-                    javaDirs.addAll(dir.listFiles()?.filter { it.isDirectory }?.map { it.absolutePath } ?: emptyList())
+                    javaExecutables.addAll(
+                        dir.listFiles()?.filter { it.isDirectory }
+                            ?.mapNotNull { File(it, "Contents/Home/bin/java").takeIf { exe -> exe.exists() }?.absolutePath }
+                            ?: emptyList(),
+                    )
                 }
             }
         }
@@ -84,11 +92,15 @@ fun getJavaInstallationDirectories(): List<String> {
             linuxPaths.forEach { path ->
                 val dir = File(path)
                 if (dir.exists() && dir.isDirectory) {
-                    javaDirs.addAll(dir.listFiles()?.filter { it.isDirectory }?.map { it.absolutePath } ?: emptyList())
+                    javaExecutables.addAll(
+                        dir.listFiles()?.filter { it.isDirectory }
+                            ?.mapNotNull { File(it, "bin/java").takeIf { exe -> exe.exists() }?.absolutePath }
+                            ?: emptyList(),
+                    )
                 }
             }
         }
     }
 
-    return javaDirs
+    return javaExecutables
 }

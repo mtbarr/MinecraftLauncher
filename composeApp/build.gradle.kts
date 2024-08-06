@@ -69,6 +69,9 @@ compose.desktop {
             linux {
                 iconFile.set(project.file("icon.png"))
             }
+            windows {
+                shortcut = true
+            }
         }
     }
 }

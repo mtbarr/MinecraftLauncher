@@ -26,6 +26,7 @@ jobs:
 #        with:
 #          java-version: '17'
 #          distribution: 'microsoft'
+#          cache: gradle
 #      - name: Build with Gradle
 #        uses: gradle/gradle-build-action@v2
 #        with:
@@ -46,6 +47,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'microsoft'
+          cache: gradle
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
@@ -67,6 +69,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'microsoft'
+          cache: gradle
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:

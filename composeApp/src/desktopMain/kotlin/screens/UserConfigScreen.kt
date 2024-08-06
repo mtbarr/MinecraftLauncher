@@ -33,10 +33,8 @@ class UserConfigScreen : Screen {
         }
 
         ContentState(
-            baseDir = state.baseDir,
             username = state.username,
             javaPath = state.javaPath,
-            onChangeBaseDir = { screenModel.updateBaseDir(it) },
             onChangeUsername = { screenModel.updateUsername(it) },
             onChangeJavaPath = { screenModel.updateJavaPath(it) },
             onPressSaveButton = { onPressSaveButton() },
@@ -45,10 +43,8 @@ class UserConfigScreen : Screen {
 
     @Composable
     fun ContentState(
-        baseDir: String = "",
         username: String = "",
         javaPath: String = "Java",
-        onChangeBaseDir: OnTextChange = {},
         onChangeUsername: OnTextChange = {},
         onChangeJavaPath: OnTextChange = {},
         onPressSaveButton: () -> Unit = {},
@@ -69,7 +65,6 @@ class UserConfigScreen : Screen {
             Spacer(modifier = Modifier.padding(horizontal = 24.dp))
             TextField(title = "Usuário", value = username, onChange = onChangeUsername)
             TextField(title = "Java", value = javaPath, onChange = onChangeJavaPath)
-            TextField(title = "Jogo", value = baseDir, onChange = onChangeBaseDir)
             Spacer(modifier = Modifier.padding(horizontal = 16.dp))
             TextButton(onClick = onPressSaveButton) {
                 Text("Salvar")

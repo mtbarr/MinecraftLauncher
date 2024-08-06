@@ -1,2 +1,3 @@
 -dontwarn org.slf4j.**
 -keep class * implements kotlinx.coroutines.internal.MainDispatcherFactory
+-keepclassmembers class io.ktor.** { volatile <fields>; }

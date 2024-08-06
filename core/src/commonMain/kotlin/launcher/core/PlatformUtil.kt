@@ -44,3 +44,5 @@ expect fun pathSeparator(): String
 expect fun extractUrlPath(url: String): String
 
 expect fun createFolder(path: String)
+
+expect fun getCurrentPath(): String

@@ -6,15 +6,15 @@
       "resources": [
         {
           "type": "VERSION",
-          "url": "http://localhost:8081/1.7.10.json"
+          "url": "https://launcher-server.fly.dev/1.7.10.json"
         },
         {
           "type": "FORGE_VERSION",
-          "url": "http://localhost:8081/forge-1.7.10.json"
+          "url": "https://launcher-server.fly.dev/forge-1.7.10.json"
         },
         {
           "type": "SERVER",
-          "url": "http://localhost:8081/server-pack.zip"
+          "url": "https://launcher-server.fly.dev/server-pack.zip"
         }
       ]
     }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.URI
+import java.nio.file.Paths
 import java.util.zip.ZipFile
 
 actual fun getPlatformData(): PlatformData {
@@ -100,4 +101,8 @@ actual fun extractUrlPath(url: String): String = URI(url).path
 
 actual fun createFolder(path: String) {
     File(path).mkdirs()
+}
+
+actual fun getCurrentPath(): String {
+    return Paths.get("").toAbsolutePath().toString()
 }

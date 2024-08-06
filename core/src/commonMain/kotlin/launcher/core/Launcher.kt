@@ -19,9 +19,8 @@ import launcher.core.version.minecraft.MappedMinecraftVersion
 import launcher.core.version.minecraft.assets.AssetIndexFile
 import launcher.core.version.minecraft.version.MojangVersion
 
-private const val LAUNCHER_FOLDER_NAME = ".launcher2"
 private const val MOJANG_REPOSITORY_URL = "https://resources.download.minecraft.net"
-private const val DEFAULT_VERSIONS_FILE_URL = "http://localhost:8081/versions.json"
+private const val DEFAULT_VERSIONS_FILE_URL = "https://launcher-server.fly.dev/versions.json"
 
 class Launcher private constructor(
     val platformData: PlatformData,
@@ -53,7 +52,8 @@ class Launcher private constructor(
         loadMinecraftVersion(selectedVersion)
         selectedVersion.forgeVersionInfoResource?.let { loadForgeVersion(selectedVersion, it) }
 
-        selectedVersion.resources.forEach { resource -> downloadIfNotExists(resource) }
+        selectedVersion.resources.filter { it.type != SERVER_DATA }
+            .forEach { resource -> downloadIfNotExists(resource) }
 
         selectedVersion.resourcesWithType(NATIVE).forEach { nativeResource ->
             extractZipFile(zipFilePath = nativeResource.location, outputPath = gameFolders.nativesDir)
@@ -131,15 +131,12 @@ class Launcher private constructor(
     companion object {
         fun start(
             json: Json,
-            launcherFolderName: String = LAUNCHER_FOLDER_NAME,
+            launcherFolderName: String = getCurrentPath() withSeparator "MinecraftLauncher_Data",
             versionsFileUrl: String = DEFAULT_VERSIONS_FILE_URL,
         ): Launcher {
             val platformData = getPlatformData()
 
-            val gameFolders =
-                GameFolders(
-                    baseDir = platformData.appDataDir withSeparator launcherFolderName,
-                ).also { it.createDefaultFolders() }
+            val gameFolders = GameFolders(baseDir = launcherFolderName).also { it.createDefaultFolders() }
 
             return Launcher(
                 platformData = platformData,

@@ -2,6 +2,11 @@ package launcher.core
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.json.Json
 import launcher.core.config.VersionConfig
@@ -18,6 +23,7 @@ import launcher.core.version.forge.version.ForgeVersion
 import launcher.core.version.minecraft.MappedMinecraftVersion
 import launcher.core.version.minecraft.assets.AssetIndexFile
 import launcher.core.version.minecraft.version.MojangVersion
+import kotlin.coroutines.coroutineContext
 
 private const val MOJANG_REPOSITORY_URL = "https://resources.download.minecraft.net"
 private const val DEFAULT_VERSIONS_FILE_URL = "https://launcher-server.fly.dev/versions.json"
@@ -52,8 +58,10 @@ class Launcher private constructor(
         loadMinecraftVersion(selectedVersion)
         selectedVersion.forgeVersionInfoResource?.let { loadForgeVersion(selectedVersion, it) }
 
+        val coroutineScope = CoroutineScope(coroutineContext + SupervisorJob())
         selectedVersion.resources.filter { it.type != SERVER_DATA }
-            .forEach { resource -> downloadIfNotExists(resource) }
+            .map { resource -> coroutineScope.async { downloadIfNotExists(resource) } }
+            .awaitAll()
 
         selectedVersion.resourcesWithType(NATIVE).forEach { nativeResource ->
             extractZipFile(zipFilePath = nativeResource.location, outputPath = gameFolders.nativesDir)
@@ -62,10 +70,14 @@ class Launcher private constructor(
         selectedVersion.assetIndexResource?.let { assetIndexResource ->
             val file = downloadIfNotExists(assetIndexResource)
             val assetIndexFile = json.decodeFromString<AssetIndexFile>(file.decodeToString())
-            assetIndexFile.objects.forEach { (_, asset) ->
-                val resourceFile = asset.toResourceFile(gameFolders, MOJANG_REPOSITORY_URL)
-                downloadIfNotExists(resourceFile)
-            }
+
+            val asyncDownloads =
+                assetIndexFile.objects.map { (_, asset) ->
+                    val resourceFile = asset.toResourceFile(gameFolders, MOJANG_REPOSITORY_URL)
+                    coroutineScope.async { downloadIfNotExists(resourceFile) }
+                }
+
+            asyncDownloads.awaitAll()
         }
 
         selectedVersion.resourceWithType(SERVER_DATA)?.let { extractServerData(it) }
@@ -140,7 +152,8 @@ class Launcher private constructor(
         ): Launcher {
             val platformData = getPlatformData()
 
-            val gameFolders = GameFolders(baseDir = platformData.appDataDir withSeparator launcherFolderName).also { it.createDefaultFolders() }
+            val gameFolders =
+                GameFolders(baseDir = platformData.appDataDir withSeparator launcherFolderName).also { it.createDefaultFolders() }
 
             return Launcher(
                 platformData = platformData,

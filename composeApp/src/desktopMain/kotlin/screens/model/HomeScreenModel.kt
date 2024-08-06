@@ -39,7 +39,13 @@ class HomeScreenModel(
                         onExit = ::onProcessTerminate,
                     )
                 }.onFailure { throwable ->
-                    mutableState.emit(state.value.copy(isLoading = false, isRunning = false, error = throwable.message))
+                    mutableState.emit(
+                        state.value.copy(
+                            isLoading = false,
+                            isRunning = false,
+                            error = throwable.stackTraceToString(),
+                        ),
+                    )
                 }.onSuccess {
                     mutableState.emit(state.value.copy(isLoading = false, isRunning = true, error = null))
                 }

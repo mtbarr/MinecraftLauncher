@@ -2,6 +2,7 @@ package screens
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
@@ -36,6 +37,8 @@ class HomeScreen : Screen {
             onClickOptions = { navigator.push(UserConfigScreen()) },
             onLaunchButtonClick = { screenModel.startGame() },
             downloadFlow = screenModel.downloadFlow,
+            error = state.error,
+            dismissError = { screenModel.dismissError() },
         )
     }
 
@@ -45,6 +48,8 @@ class HomeScreen : Screen {
         onLaunchButtonClick: () -> Unit = {},
         onClickOptions: () -> Unit = {},
         downloadFlow: MutableSharedFlow<DownloadProgress> = MutableSharedFlow(),
+        error: String? = null,
+        dismissError: () -> Unit = {},
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -61,6 +66,21 @@ class HomeScreen : Screen {
             }
             Spacer(modifier = Modifier.height(32.dp))
             DownloadLoadingBar(downloadFlow)
+        }
+
+        if (error != null) {
+            AlertDialog(
+                onDismissRequest = dismissError,
+                title = { Text("Erro") },
+                text = { Text(error) },
+                confirmButton = {
+                    TextButton(
+                        onClick = dismissError,
+                    ) {
+                        Text("Ok")
+                    }
+                },
+            )
         }
     }
 

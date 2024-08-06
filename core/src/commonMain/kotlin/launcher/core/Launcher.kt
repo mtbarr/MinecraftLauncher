@@ -71,6 +71,10 @@ class Launcher private constructor(
         selectedVersion.resourceWithType(SERVER_DATA)?.let { extractServerData(it) }
     }
 
+    suspend fun clearDownloadFlow() {
+        downloadFlow.emit(DownloadProgress("", 1.0))
+    }
+
     private suspend fun loadMinecraftVersion(selectedVersion: Version) {
         val versionInfoResource = requireNotNull(selectedVersion.versionInfoResource)
         val versionInfo =

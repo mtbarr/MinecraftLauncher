@@ -11,6 +11,7 @@ import launcher.core.runner.GameRunner
 data class HomeModel(
     val isRunning: Boolean = false,
     val isLoading: Boolean = false,
+    val error: String? = null,
 )
 
 class HomeScreenModel(
@@ -27,17 +28,28 @@ class HomeScreenModel(
             }
 
             launcherConfigHolder.launcherConfig.value?.let { config ->
-                mutableState.emit(state.value.copy(isLoading = true))
+                mutableState.emit(state.value.copy(isLoading = true, error = null))
 
-                GameRunner.launchGame(
-                    launcher = launcher,
-                    javaPath = config.javaPath,
-                    javaArguments = config.javaArguments,
-                    username = config.username,
-                    onExit = ::onProcessTerminate,
-                )
-                mutableState.emit(state.value.copy(isLoading = false, isRunning = true))
+                runCatching {
+                    GameRunner.launchGame(
+                        launcher = launcher,
+                        javaPath = config.javaPath,
+                        javaArguments = config.javaArguments,
+                        username = config.username,
+                        onExit = ::onProcessTerminate,
+                    )
+                }.onFailure { throwable ->
+                    mutableState.emit(state.value.copy(isLoading = false, isRunning = false, error = throwable.message))
+                }.onSuccess {
+                    mutableState.emit(state.value.copy(isLoading = false, isRunning = true, error = null))
+                }
             }
+        }
+
+    fun dismissError() =
+        screenModelScope.launch {
+            mutableState.tryEmit(state.value.copy(error = null))
+            launcher.clearDownloadFlow()
         }
 
     private fun onProcessTerminate() {

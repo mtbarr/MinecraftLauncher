@@ -17,26 +17,26 @@ permissions:
   contents: write
 
 jobs:
-#  build_macos:
-#    runs-on: macos-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Set up JDK 17
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: '17'
-#          distribution: 'microsoft'
-#          cache: gradle
-#      - name: Build with Gradle
-#        uses: gradle/gradle-build-action@v2
-#        with:
-#          gradle-version: current
-#          arguments: ":composeApp:packageDmg"
-#      - name: Upload MacOS Build
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: macos-build
-#          path: composeApp/build/compose/binaries/main-release/dmg/*.dmg
+  build_macos:
+   runs-on: macos-latest
+   steps:
+     - uses: actions/checkout@v3
+     - name: Set up JDK 17
+       uses: actions/setup-java@v3
+       with:
+         java-version: '17'
+         distribution: 'microsoft'
+         cache: gradle
+     - name: Build with Gradle
+       uses: gradle/gradle-build-action@v2
+       with:
+         gradle-version: current
+         arguments: ":composeApp:packageReleaseDmg"
+     - name: Upload MacOS Build
+       uses: actions/upload-artifact@v2
+       with:
+         name: macos-build
+         path: composeApp/build/compose/binaries/main-release/dmg/*.dmg
 
   build_linux:
     runs-on: ubuntu-latest
@@ -52,12 +52,12 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: current
-          arguments: ":composeApp:packageDeb"
+          arguments: ":composeApp:packageReleaseDeb"
       - name: Upload Linux Build
         uses: actions/upload-artifact@v2
         with:
           name: linux-build
-          path: composeApp/build/compose/binaries/main/deb/*.deb
+          path: composeApp/build/compose/binaries/main-release/deb/*.deb
 
 
   build_windows:
@@ -74,17 +74,17 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: current
-          arguments: ":composeApp:packageMsi"
+          arguments: ":composeApp:packageReleaseMsi"
       - name: Upload Windows Build
         uses: actions/upload-artifact@v2
         with:
           name: windows-build
-          path: composeApp/build/compose/binaries/main/msi/*.msi
+          path: composeApp/build/compose/binaries/main-release/msi/*.msi
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
     needs:
-#      - "build_macos"
+      - "build_macos"
       - "build_linux"
       - "build_windows"
     runs-on: ubuntu-latest
@@ -99,4 +99,4 @@ jobs:
           files: |
             build/linux-build/*.deb
             build/windows-build/*.msi
-#            build/macos-build/*.dmg
+            build/macos-build/*.dmg

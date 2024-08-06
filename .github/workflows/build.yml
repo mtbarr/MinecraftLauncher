@@ -9,10 +9,9 @@ name: Build (and Release)
 
 on:
   push:
-
-#    branches: [ "main" ]
-#    tags:
-#      - "v*.*.*"
+    branches: [ "main" ]
+    tags:
+      - "v*.*.*"
 
 permissions:
   contents: write
@@ -95,6 +94,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/macos-build/*.dmg
             build/linux-build/*.deb
             build/windows-build/*.msi
+#            build/macos-build/*.dmg

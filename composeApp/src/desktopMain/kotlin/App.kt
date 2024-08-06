@@ -9,6 +9,7 @@ import screens.HomeScreen
 import screens.UserConfigScreen
 import screens.model.HomeScreenModel
 import screens.model.LauncherConfigHolder
+import screens.model.UserConfig
 import screens.model.UserConfigScreenModel
 
 @Composable
@@ -27,6 +28,13 @@ private val applicationModule =
         single<Json> { Json { ignoreUnknownKeys = true } }
         single<LauncherConfigHolder> { LauncherConfigHolder() }
         single<Launcher> { Launcher.start(get()) }
-        single<UserConfigScreenModel> { UserConfigScreenModel(get()) }
+        single<UserConfigScreenModel> { UserConfigScreenModel(get(), defaultUserConfig()) }
         single<HomeScreenModel> { HomeScreenModel(get(), get()) }
     }
+
+private fun defaultUserConfig(): UserConfig {
+    return UserConfig(
+        username = System.getenv("USER") ?: "",
+        javaPath = System.getenv("JAVA_HOME") ?: "",
+    )
+}

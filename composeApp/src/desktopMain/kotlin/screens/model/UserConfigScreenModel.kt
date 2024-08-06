@@ -5,7 +5,8 @@ import launcher.config.LauncherConfig
 
 class UserConfigScreenModel(
     private val launcherConfigHolder: LauncherConfigHolder,
-) : StateScreenModel<UserConfig>(UserConfig()) {
+    defaultUserConfig: UserConfig,
+) : StateScreenModel<UserConfig>(defaultUserConfig) {
     fun updateUsername(username: String) = mutableState.tryEmit(state.value.copy(username = username))
 
     fun updateJavaPath(javaPath: String) = mutableState.tryEmit(state.value.copy(javaPath = javaPath))
@@ -16,6 +17,6 @@ class UserConfigScreenModel(
 }
 
 data class UserConfig(
-    val username: String = "RafaelBacano",
-    val javaPath: String = "/home/rafael/.sdkman/candidates/java/8.0.412-amzn/bin/java",
+    val username: String,
+    val javaPath: String,
 )

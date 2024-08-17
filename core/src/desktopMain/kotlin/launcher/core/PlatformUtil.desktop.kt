@@ -83,7 +83,12 @@ actual suspend fun extractZipFile(
                     zipFile.getInputStream(zipFileEntry).use { entryInputStream ->
                         val entryPath = outputPath + File.separator + zipFileEntry.name
                         if (!zipFileEntry.isDirectory) {
-                            File(entryPath).writeBytes(entryInputStream.readAllBytes())
+                            File(entryPath).let { file ->
+                                if (!file.exists()) {
+                                    file.createNewFile()
+                                }
+                                file.writeBytes(entryInputStream.readAllBytes())
+                            }
                         } else {
                             File(entryPath).mkdirs()
                         }

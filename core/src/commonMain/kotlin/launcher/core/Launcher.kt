@@ -26,7 +26,7 @@ import launcher.core.version.minecraft.version.MojangVersion
 import kotlin.coroutines.coroutineContext
 
 private const val MOJANG_REPOSITORY_URL = "https://resources.download.minecraft.net"
-private const val DEFAULT_VERSIONS_FILE_URL = "https://launcher-server.fly.dev/versions.json"
+private const val DEFAULT_VERSIONS_FILE_URL = "https://fly.storage.tigris.dev/minecraft-launcher-data/versions.json"
 
 class Launcher private constructor(
     val platformData: PlatformData,

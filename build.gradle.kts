@@ -10,11 +10,10 @@ plugins {
 }
 
 subprojects {
-    val libs = rootProject.libs
     listOf(
-        libs.plugins.kotestMultiplatform,
-        libs.plugins.ktlint,
-        libs.plugins.kotlinxSerialization,
+        rootProject.libs.plugins.kotestMultiplatform,
+        rootProject.libs.plugins.ktlint,
+        rootProject.libs.plugins.kotlinxSerialization,
     ).forEach { plugin ->
         apply(plugin = plugin.get().pluginId)
     }

@@ -2,12 +2,16 @@ package launcher.core
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
 import launcher.core.config.VersionConfig
 import launcher.core.extensions.withSeparator
@@ -23,10 +27,14 @@ import launcher.core.version.forge.version.ForgeVersion
 import launcher.core.version.minecraft.MappedMinecraftVersion
 import launcher.core.version.minecraft.assets.AssetIndexFile
 import launcher.core.version.minecraft.version.MojangVersion
-import kotlin.coroutines.coroutineContext
 
 private const val MOJANG_REPOSITORY_URL = "https://resources.download.minecraft.net"
 private const val DEFAULT_VERSIONS_FILE_URL = "https://fly.storage.tigris.dev/minecraft-launcher-data/versions.json"
+private const val DOWNLOAD_PARALLELISM = 15
+
+private val coroutineDispatcher = Dispatchers.IO.limitedParallelism(DOWNLOAD_PARALLELISM)
+private val coroutineScope = CoroutineScope(coroutineDispatcher + SupervisorJob())
+private val semaphore = Semaphore(DOWNLOAD_PARALLELISM)
 
 class Launcher private constructor(
     val platformData: PlatformData,
@@ -34,7 +42,7 @@ class Launcher private constructor(
     val json: Json,
     val versionsFileUrl: String,
 ) {
-    private val fileDownloader = FileDownloaderAdapter(HttpClient(CIO))
+    private val fileDownloader = FileDownloaderAdapter(createHttpClient())
 
     var selectedVersion: Version? = null
     var selectedMinecraftVersion: MappedMinecraftVersion? = null
@@ -47,7 +55,8 @@ class Launcher private constructor(
             downloadIfNotExists(
                 location = gameFolders.baseDir withSeparator "versions.json",
                 remoteUrl = versionsFileUrl,
-            )
+            ).await()
+
         val versionConfig = json.decodeFromString<VersionConfig>(file.decodeToString())
         selectedVersion = versionConfig.versions.first().toVersion(gameFolders)
     }
@@ -58,9 +67,8 @@ class Launcher private constructor(
         loadMinecraftVersion(selectedVersion)
         selectedVersion.forgeVersionInfoResource?.let { loadForgeVersion(selectedVersion, it) }
 
-        val coroutineScope = CoroutineScope(coroutineContext + SupervisorJob())
         selectedVersion.resources.filter { it.type != SERVER_DATA }
-            .map { resource -> coroutineScope.async { downloadIfNotExists(resource) } }
+            .map { resource -> downloadIfNotExists(resource) }
             .awaitAll()
 
         selectedVersion.resourcesWithType(NATIVE).forEach { nativeResource ->
@@ -68,13 +76,13 @@ class Launcher private constructor(
         }
 
         selectedVersion.assetIndexResource?.let { assetIndexResource ->
-            val file = downloadIfNotExists(assetIndexResource)
+            val file = downloadIfNotExists(assetIndexResource).await()
             val assetIndexFile = json.decodeFromString<AssetIndexFile>(file.decodeToString())
 
             val asyncDownloads =
                 assetIndexFile.objects.map { (_, asset) ->
                     val resourceFile = asset.toResourceFile(gameFolders, MOJANG_REPOSITORY_URL)
-                    coroutineScope.async { downloadIfNotExists(resourceFile) }
+                    downloadIfNotExists(resourceFile)
                 }
 
             asyncDownloads.awaitAll()
@@ -90,7 +98,7 @@ class Launcher private constructor(
     private suspend fun loadMinecraftVersion(selectedVersion: Version) {
         val versionInfoResource = requireNotNull(selectedVersion.versionInfoResource)
         val versionInfo =
-            downloadIfNotExists(versionInfoResource)
+            downloadIfNotExists(versionInfoResource).await()
                 .let { versionInfo -> json.decodeFromString<MojangVersion>(versionInfo.decodeToString()) }
 
         val mappedMinecraftVersion =
@@ -108,7 +116,7 @@ class Launcher private constructor(
         forgeVersionInfoResource: ResourceFile,
     ) {
         val forgeVersionInfo =
-            downloadIfNotExists(forgeVersionInfoResource)
+            downloadIfNotExists(forgeVersionInfoResource).await()
                 .let { forgeVersionInfo ->
                     json.decodeFromString<ForgeVersion>(forgeVersionInfo.decodeToString())
                 }
@@ -123,28 +131,35 @@ class Launcher private constructor(
     private suspend fun extractServerData(resourceFile: ResourceFile) {
         val alreadyDownloadedServerData = fileExists(resourceFile.location)
         if (!alreadyDownloadedServerData) {
-            downloadIfNotExists(resourceFile)
+            downloadIfNotExists(resourceFile).await()
             extractZipFile(zipFilePath = resourceFile.location, outputPath = gameFolders.gameDir)
         }
     }
 
-    private suspend fun downloadIfNotExists(resourceFile: ResourceFile): ByteArray {
+    private fun downloadIfNotExists(resourceFile: ResourceFile): Deferred<ByteArray> {
         return downloadIfNotExists(location = resourceFile.location, remoteUrl = resourceFile.remoteUrl)
     }
 
-    private suspend fun downloadIfNotExists(
+    private fun downloadIfNotExists(
         location: String,
         remoteUrl: String,
-    ): ByteArray {
-        return if (fileExists(location)) {
-            loadFile(location)
-        } else {
-            val downloadedFile = fileDownloader.download(remoteUrl, onDownloadProgress = { downloadFlow.emit(it) })
-            saveIntoFile(location, downloadedFile)
+    ): Deferred<ByteArray> {
+        return coroutineScope.async(coroutineDispatcher) {
+            semaphore.withPermit {
+                if (fileExists(location)) {
+                    loadFile(location)
+                } else {
+                    val downloadedFile =
+                        fileDownloader.download(remoteUrl, onDownloadProgress = { downloadFlow.emit(it) })
+                    saveIntoFile(location, downloadedFile)
+                }
+            }
         }
     }
 
     companion object {
+        private const val REQUEST_TIMEOUT_MILLIS = 30_000L
+
         fun start(
             json: Json,
             launcherFolderName: String = "MinecraftLauncher_Data",
@@ -161,6 +176,14 @@ class Launcher private constructor(
                 json = json,
                 versionsFileUrl = versionsFileUrl,
             )
+        }
+
+        private fun createHttpClient(): HttpClient {
+            return HttpClient(CIO) {
+                install(HttpTimeout) {
+                    requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS
+                }
+            }
         }
     }
 }

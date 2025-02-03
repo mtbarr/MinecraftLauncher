@@ -3,15 +3,19 @@
     {
       "id": "1.7.10",
       "version": 1,
-      "serverAddress": "redescreen.com",
+      "serverAddress": "jogar.dbcheroes.xyz",
       "resources": [
         {
           "type": "VERSION",
-          "url": "https://launcher-server.fly.dev/1.7.10.json"
+          "url": "https://codeberg.org/sasuke/dbc-heroes-modpack/raw/branch/main/1.7.10.json"
         },
         {
           "type": "FORGE_VERSION",
-          "url": "https://launcher-server.fly.dev/forge-1.7.10.json"
+          "url": "https://codeberg.org/sasuke/dbc-heroes-modpack/raw/branch/main/forge-1.7.10.json"
+        },
+        {
+          "type": "SERVER",
+          "url": "https://codeberg.org/sasuke/dbc-heroes-modpack/src/branch/main/modpack-minimal.zip"
         }
       ]
     }

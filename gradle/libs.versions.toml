@@ -30,6 +30,17 @@ voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", vers
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-compose" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.16" }
+kermit = { module = "co.touchlab:kermit", version = "2.0.4" }
+
+azuljavadownloader = { module = "fr.flowarg:azuljavadownloader", version = "1.0.2" }
+flowupdater = { module = "fr.flowarg:flowupdater", version = "1.8.4" }
+commons-compress = { module = "org.apache.commons:commons-compress", version = "1.25.0" }
+commons-io = { module = "commons-io:commons-io", version = "2.5" }
+gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
+json = { module = "org.json:json", version = "20160212" }
+openlauncherlib = { module = "fr.flowarg:openlauncherlib", version = "3.2.9" }
+flowmultitools = { module = "fr.flowarg:flowmultitools", version = "1.4.0" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

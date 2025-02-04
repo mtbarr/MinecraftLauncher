@@ -22,7 +22,9 @@ import fr.flowarg.azuljavadownloader.AzulJavaType
 import fr.flowarg.azuljavadownloader.AzulJavaOS
 import fr.flowarg.azuljavadownloader.AzulJavaArch
 import fr.flowarg.flowupdater.versions.forge.ForgeVersionBuilder
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import launcher.state.DownloadingState
 import launcher.state.LauncherState
@@ -37,36 +39,23 @@ class Launcher {
 
     const val OPTIONS_URL = "https://github.com/dbcbrasil/modpack/raw/refs/heads/main/options.txt"
     const val OPTIONS_OPTIFINE_URL = "https://github.com/dbcbrasil/modpack/raw/refs/heads/main/optionsof.txt"
-
     const val SERVER_FILE_URL = "https://github.com/dbcbrasil/modpack/raw/refs/heads/main/servers.dat"
-
-
     const val RESOURCEPACK_URL = "https://codeberg.org/sasuke/dbc-heroes-modpack/raw/branch/main/DBC%20Brasil.zip"
-
 
     val GAME_DIR: Path = GameDirGenerator.createGameDir("dbcbrasil", false)
     val SERVERS_DAT_FILE: File = File(GAME_DIR.toFile(), "servers.dat")
-
     val RESOURCE_PACKS_DIR: File = File(GAME_DIR.toFile(), "resourcepacks")
-
-    //https://github.com/dbcbrasil/modpack/raw/refs/heads/main/options.txt
     val OPTIONS_FILE: File = File(GAME_DIR.toFile(), "options.txt")
-
-    // https://github.com/dbcbrasil/modpack/raw/refs/heads/main/optionsof.txt
     val OPTIONS_OPTIFINE_FILE: File = File(GAME_DIR.toFile(), "optionsof.txt")
 
 
     val LOGS_FILE: File = File("${GAME_DIR.toFile()}${File.separator}logs.txt")
     val CONFIG: Saver = Saver(File("${GAME_DIR.toFile()}${File.separator}launcher_config.properties").toPath())
     val LOGGER: ILogger = Logger("[DBCBR]", LOGS_FILE.toPath())
-
-    private val RANDOM_NAMES: List<String> = listOf(
-      "Jogador",
-      "Player",
-      "Player123",
-      "Player1234",
-    )
   }
+
+
+  private val launcherScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
   val currentLauncherConfig: MutableStateFlow<LauncherConfig> = MutableStateFlow(LauncherConfig())
   val launcherConfig: LauncherConfig
@@ -80,20 +69,21 @@ class Launcher {
     get() = _launcherState
 
   fun preInit() {
-    launcherState.tryEmit(LauncherState.Preparing)
-    LOGGER.info("LauncherState=${launcherState.value}")
-
-    LOGGER.info("Carregando configuração inicial..")
-    ensureGameDir()
-    downloadServersDat()
-    downloadResourcepack()
-    downloadOptionsFile()
-    downloadOptionsOptifineFile()
-
-    CONFIG.load()
-
     // Executa o download do Java de forma assíncrona
-    GlobalScope.launch {
+    launcherScope.launch {
+      launcherState.tryEmit(LauncherState.Preparing)
+      LOGGER.info("LauncherState=${launcherState.value}")
+
+      LOGGER.info("Carregando configuração inicial..")
+      ensureGameDir()
+      downloadServersDat()
+      downloadResourcepack()
+      downloadOptionsFile()
+      downloadOptionsOptifineFile()
+
+      CONFIG.load()
+
+
       val javaPath = ensureJavaInstallation()
 
       currentLauncherConfig.emit(
@@ -133,7 +123,7 @@ class Launcher {
     LOGGER.info("Launching game...")
 
     // Inicia uma coroutine no escopo global
-    GlobalScope.launch {
+    launcherScope.launch {
       runCatching {
 
         launcherState.tryEmit(LauncherState.Updating)

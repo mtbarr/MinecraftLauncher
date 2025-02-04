@@ -1,9 +1,9 @@
-name: Build MSI
+name: Build and Release MSI
 
 on:
   push:
     branches:
-      - main
+      - main # Change as needed
 
 jobs:
   build:
@@ -24,3 +24,27 @@ jobs:
 
       - name: Run Gradle to package MSI (no daemon)
         run: ./gradlew composeApp:packageMsi --no-daemon
+
+      - name: Get version from file name
+        id: get_version
+        run: |
+          $msiFile = Get-ChildItem -Path "composeApp/build/compose/binaries/main/msi/" -Filter "*.msi" | Select-Object -ExpandProperty Name
+          $version = $msiFile -match "(\d+\.\d+\.\d+)" ? $matches[1] : "latest"
+          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "MSI_FILE=$msiFile" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Upload MSI as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DBC-Brasil-Launcher-${{ env.VERSION }}
+          path: composeApp/build/compose/binaries/main/msi/${{ env.MSI_FILE }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: "New release of DBC Brasil Launcher - version ${{ env.VERSION }}"
+          files: composeApp/build/compose/binaries/main/msi/${{ env.MSI_FILE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
